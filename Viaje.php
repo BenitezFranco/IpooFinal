@@ -34,7 +34,7 @@ class Viaje
         $this->empresa = new Empresa();
     }
 
-    public function cargar($codigo, $destino, $cantidad, $responsable, $costo)
+    public function cargar($codigo, $destino, $cantidad, $responsable, $costo,$empresa)
     {
         $this->setCodigo($codigo);
         $this->setDestino($destino);
@@ -42,6 +42,7 @@ class Viaje
         $this->setResponsable($responsable);
         $this->setCosto($costo);
         $this->setPasajeros(Pasajero::listar('idviaje =' . $codigo));
+        $this->setEmpresa($empresa);
     }
 
     public function getCodigo()
@@ -148,7 +149,8 @@ class Viaje
 
     public function __toString()
     {
-        return "\n(Codigo: " . $this->codigo . ", Destino: " . $this->destino . ", CantidadAsientos: " . $this->cantidad . ", Responsable: " . $this->auxToStringResponsable() . ", Costo: " . $this->getCosto() . ", Pasajeros:" . $this->auxToStringPasajeros() . ")";
+        $cadena= $this->getEmpresa()!=null ? " Empresa: ".$this->getEmpresa()->getIdempresa(): "";
+        return "\n(Codigo: " . $this->codigo . ", Destino: " . $this->destino . ", CantidadAsientos: " . $this->cantidad . ", Responsable: " . $this->auxToStringResponsable() . ", Costo: " . $this->getCosto() . ", Pasajeros:" . $this->auxToStringPasajeros().$cadena.")";
     }
 
     private function auxToStringResponsable()
@@ -207,10 +209,13 @@ class Viaje
     {
         $base = new BaseDatos();
         $resp = false;
-        $resp = $this->getResponsable() !== null ? intval(($this->getResponsable())->getNumero()) : "NULL";
-        $empr = $this->getEmpresa() !== null ? intval(($this->getEmpresa())->getIdempresa()) : "NULL";
+        $resp = intval(($this->getResponsable())->getNumero());
+        $empr = intval(($this->getEmpresa())->getIdempresa());
+
+
         $consultaInsertar = "INSERT INTO viaje(vdestino, vcantmaxpasajeros, rnumeroempleado, vimporte, idempresa) 
-                VALUES ('" . $this->getDestino() . "'," . intval($this->getCantidad()) . ", " . $resp . "," . floatval($this->getCosto()) . ", " . $empr . ")";
+                VALUES ('" . $this->getDestino() . "'," . intval($this->getCantidad()) . ", " . $resp . "," .
+                 floatval($this->getCosto()) . ", " . $empr . ")";
 
         if ($base->Iniciar()) {
 
@@ -232,11 +237,9 @@ class Viaje
         $base = new BaseDatos();
         $resp = $this->getResponsable();
         $emp = $this->getEmpresa();
-        $consultaModifica = "UPDATE viaje SET vdestino='" . $this->getDestino() . "',vcantmaxpasajeros= " . intval($this->getCantidad()) .
-            ", vimporte= " . floatval($this->getCosto());
-        if ($resp != null) {
-            $consultaModifica .= ", rnumeroempleado= " . intval($resp->getNumero());
-        }
+        $consultaModifica = "UPDATE viaje SET vdestino='" . $this->getDestino() . "',vcantmaxpasajeros= " 
+        .intval($this->getCantidad()).", vimporte= " . floatval($this->getCosto()).", rnumeroempleado= " . intval($resp->getNumero()).",idempresa=".intval($emp->getIdempresa());
+        
         $consultaModifica .= " WHERE idviaje= " . intval($this->getCodigo());
         if ($base->Iniciar()) {
             if ($base->Ejecutar($consultaModifica)) {
@@ -303,7 +306,7 @@ class Viaje
         $consultaViajes .= " order by idviaje ";
         if ($base->Iniciar()) {
             if ($base->Ejecutar($consultaViajes)) {
-                $arregloViaje = array();
+                $arregloViaje = array();    
                 while ($row2 = $base->Registro()) {
 
                     $idviaje = $row2['idviaje'];
@@ -313,8 +316,8 @@ class Viaje
                     $resp = new ResponsableV();
                     $resp->Buscar($row2['rnumeroempleado']);
 
-                    $viaje = new Viaje();
-                    $viaje->cargar($idviaje, $destino, $cantidad, $resp, $importe);
+                    $viaje = new Viaje();                    
+                    $viaje->cargar($idviaje, $destino, $cantidad, $resp, $importe,null);
                     array_push($arregloViaje, $viaje);
                 }
             } else {

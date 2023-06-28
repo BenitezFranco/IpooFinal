@@ -132,6 +132,7 @@ function menuMenus()
 
 function ingresarEmpresa()
 {
+
     $empresa = new Empresa();
     echo "Ingrese el nombre de la empresa\n";
     $nombre =  trim(fgets(STDIN));
@@ -183,8 +184,14 @@ function eliminarEmpresa()
     if ($empresa != null) {
         $viajes = $empresa->getViajes();
         $indice = count($viajes);
-        for ($i = 0; $i < $indice; $i++) {
-            eliminarViaje($empresa, $viajes[$i]);
+        if ($indice > 0) {
+            echo "Si no desea eliminar una empresa con sus viajes y pasajeros ingrese -1\n";
+            $resp =  trim(fgets(STDIN));
+            if ($resp !== "-1") {
+                for ($i = 0; $i < $indice; $i++) {
+                    eliminarViaje($empresa, $viajes[$i]);
+                }
+            }
         }
         $empresa->eliminar();
     }
@@ -511,6 +518,10 @@ function menuPasajero()
 
 function pedirEmpresa()
 {
+    $empresas = Empresa::listar();
+    foreach ($empresas as $emp) {
+        echo "" . $emp->__toString() . "\n\n\n";
+    }
     $band = false;
     $empresa = null;
     do {
@@ -518,6 +529,7 @@ function pedirEmpresa()
         $codigo =  trim(fgets(STDIN));
         $empresa = new Empresa();
         $band = $empresa->Buscar($codigo);
+
         if (!$band) {
             echo "Codigo inexistente\n";
         }
@@ -527,6 +539,10 @@ function pedirEmpresa()
 
 function pedirViaje()
 {
+    $viajes = Viaje::listar();
+    foreach ($viajes as $elem) {
+        echo "" . $elem->__toString() . "\n\n\n";
+    }
     $viaje = null;
     $band = false;
     do {
@@ -544,6 +560,10 @@ function pedirViaje()
 
 function pedirResponsable()
 {
+    $responsables = ResponsableV::listar();
+    foreach ($responsables as $elem) {
+        echo "" . $elem->__toString() . "\n\n\n";
+    }
     $responsable = null;
     $band = false;
     do {
@@ -561,6 +581,10 @@ function pedirResponsable()
 //Devuelve un pasajero que existe
 function pedirPasajero()
 {
+    $pasajeros = Pasajero::listar();
+    foreach ($pasajeros as $elem) {
+        echo "" . $elem->__toString() . "\n\n\n";
+    }
     $band = false;
     do {
         echo "Ingrese el DNI del pasajero\n";
@@ -578,6 +602,10 @@ function pedirPasajero()
 //Devuelve un DNI inexistente
 function comprobarDNIPasajero()
 {
+    $pasajeros = Pasajero::listar();
+    foreach ($pasajeros as $elem) {
+        echo "" . $elem->__toString() . "\n\n\n";
+    }
     $band = false;
     do {
         echo "Ingrese el DNI del pasajero\n";

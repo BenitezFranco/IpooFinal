@@ -90,7 +90,8 @@ class Pasajero
 
     public function __toString()
     {
-        return "\n(Nombre: " . $this->getNombre() . ", Apellido: " . $this->getApellido() . ", DNI: " . $this->getDni() . ", Telefono: " . $this->getTelefono() . ")";
+        $cadena= $this->getViaje()!=null ? " Viaje: ".$this->getViaje()->getCodigo(): "";
+        return "\n(Nombre: " . $this->getNombre() . ", Apellido: " . $this->getApellido() . ", DNI: " . $this->getDni() . ", Telefono: " . $this->getTelefono().$cadena. ")";
     }
 
     //SQL
